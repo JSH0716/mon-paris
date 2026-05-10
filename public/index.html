@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mon Paris — AI 파리 여행 플래너</title>
+  <meta name="description" content="AI가 당신만을 위한 파리 여행 루트를 설계해 드립니다. 가고 싶은 장소를 선택하면 최적의 일정을 제안해드립니다."/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="site-header">
+    <div class="header-ornament">✦</div>
+    <p class="header-eyebrow">Bienvenue à Paris</p>
+    <h1 class="header-title">Mon Paris</h1>
+    <p class="header-subtitle">AI가 설계하는 나만의 파리 여행 루트</p>
+    <div class="header-divider">
+      <span class="divider-line"></span>
+      <span class="divider-diamond">◆</span>
+      <span class="divider-line"></span>
+    </div>
+  </header>
+
+  <!-- ===================== MAIN ===================== -->
+  <main class="main-container">
+
+    <!-- STEP 1: Place Selection -->
+    <section class="step-section" id="step-1">
+      <div class="step-label">
+        <span class="step-number">I</span>
+        <span class="step-title">장소를 선택하세요</span>
+      </div>
+      <p class="step-desc">방문하고 싶은 파리의 장소들을 골라보세요. 여러 개를 선택하실 수 있습니다.</p>
+
+      <!-- Category Tabs -->
+      <div class="tab-bar" id="tab-bar">
+        <button class="tab-btn active" data-cat="전체">전체</button>
+        <button class="tab-btn" data-cat="관광지">관광지</button>
+        <button class="tab-btn" data-cat="레스토랑">레스토랑</button>
+        <button class="tab-btn" data-cat="카페">카페</button>
+        <button class="tab-btn" data-cat="빵집">빵집</button>
+        <button class="tab-btn" data-cat="액티비티">액티비티</button>
+      </div>
+
+      <!-- Place Cards Grid -->
+      <div class="places-grid" id="places-grid">
+        <div class="loading-placeholder">
+          <div class="spinner"></div>
+          <p>장소 목록을 불러오는 중...</p>
+        </div>
+      </div>
+
+      <!-- Selected summary bar -->
+      <div class="selected-bar" id="selected-bar">
+        <span class="selected-bar-icon">✦</span>
+        <span id="selected-count">0개 선택됨</span>
+        <div class="selected-tags" id="selected-tags"></div>
+        <button class="clear-btn" id="clear-btn" onclick="clearSelection()">모두 취소</button>
+      </div>
+    </section>
+
+    <!-- STEP 2: Conditions -->
+    <section class="step-section" id="step-2">
+      <div class="step-label">
+        <span class="step-number">II</span>
+        <span class="step-title">여행 조건을 입력하세요</span>
+      </div>
+      <p class="step-desc">AI가 더 정확한 일정을 구성할 수 있도록 몇 가지 정보를 알려주세요.</p>
+
+      <form class="conditions-form" id="conditions-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="serif-label">여행 일수</label>
+            <div class="option-chips" id="days-chips">
+              <label class="chip">
+                <input type="radio" name="days" value="1">
+                <span class="chip-content">1일</span>
+              </label>
+              <label class="chip">
+                <input type="radio" name="days" value="2" checked>
+                <span class="chip-content">2일</span>
+              </label>
+              <label class="chip">
+                <input type="radio" name="days" value="3">
+                <span class="chip-content">3일</span>
+              </label>
+              <label class="chip">
+                <input type="radio" name="days" value="4">
+                <span class="chip-content">4일</span>
+              </label>
+              <label class="chip">
+                <input type="radio" name="days" value="5">
+                <span class="chip-content">5일</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="serif-label">이동 수단</label>
+            <div class="option-chips" id="transport-chips">
+              <label class="chip">
+                <input type="radio" name="transport" value="도보 및 지하철(메트로)" checked>
+                <span class="chip-content">🚇 지하철+도보</span>
+              </label>
+              <label class="chip">
+                <input type="radio" name="transport" value="도보 중심">
+                <span class="chip-content">👟 도보 중심</span>
+              </label>
+              <label class="chip">
+                <input type="radio" name="transport" value="택시 및 우버 위주">
+                <span class="chip-content">🚕 택시/우버</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="form-group full-width">
+          <label for="hotel" class="serif-label">숙소 위치 <span class="label-hint">(예: 마레 지구, 라탱 지구)</span></label>
+          <div class="input-with-icon">
+            <span class="input-icon">🏨</span>
+            <input type="text" id="hotel" name="hotel" placeholder="파리 시내 중심부 (기본값)" />
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- CTA Button -->
+    <div class="cta-wrapper">
+      <button class="cta-btn" id="generate-btn" onclick="generatePlan()">
+        <span class="cta-icon">✨</span>
+        <span class="cta-text">AI 여행 루트 생성하기</span>
+        <span class="cta-sub">Créer mon itinéraire</span>
+      </button>
+    </div>
+
+    <!-- STEP 3: Result -->
+    <section class="result-section" id="result-section" style="display:none;">
+      <div class="result-header">
+        <div class="header-divider">
+          <span class="divider-line"></span>
+          <span class="divider-diamond">◆</span>
+          <span class="divider-line"></span>
+        </div>
+        <div class="step-label" style="justify-content:center; margin-top:1.5rem;">
+          <span class="step-number">III</span>
+          <span class="step-title">나만의 파리 여행 루트</span>
+        </div>
+        <h2 class="plan-title" id="plan-title"></h2>
+        <p class="plan-summary" id="plan-summary"></p>
+      </div>
+      <div class="timeline-container" id="timeline-container"></div>
+      <div class="result-footer">
+        <button class="reset-btn" onclick="resetAll()">↩ 처음부터 다시 계획하기</button>
+      </div>
+    </section>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loading-overlay" style="display:none;">
+      <div class="loading-card">
+        <div class="eiffel-icon">🗼</div>
+        <p class="loading-title">AI가 최적의 루트를 계획 중입니다</p>
+        <p class="loading-sub">동선과 영업시간을 분석하고 있어요...</p>
+        <div class="loading-dots">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error toast -->
+    <div class="error-toast" id="error-toast" style="display:none;">
+      <span class="toast-icon">⚠</span>
+      <span id="error-msg"></span>
+    </div>
+
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="site-footer">
+    <div class="header-divider" style="margin-bottom:1.5rem;">
+      <span class="divider-line"></span>
+      <span class="divider-diamond">◆</span>
+      <span class="divider-line"></span>
+    </div>
+    <p class="footer-text">Powered by Cloudflare Workers AI &nbsp;·&nbsp; Paris Travel Planner</p>
+    <p class="footer-text" style="font-size:0.75rem; margin-top:0.5rem; opacity:0.4;">영업시간 및 입장료는 변동될 수 있으니 방문 전 공식 홈페이지를 확인하세요.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
